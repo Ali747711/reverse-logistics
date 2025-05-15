@@ -32,6 +32,12 @@ function calculateReportMetrics(data, decisions) {
     let valueRecovered = 0;
     let processingCosts = 0;
     
+    // Count decisions by type for analytics
+    let refurbishCount = 0;
+    let resellCount = 0;
+    let recycleCount = 0;
+    let discardCount = 0;
+    
     decisions.forEach(decision => {
         if (decision.decision) {
             const item = data.find(i => i.SKU === decision.sku);
@@ -42,15 +48,19 @@ function calculateReportMetrics(data, decisions) {
                 if (decision.decision === 'refurbish') {
                     valueRecovered += resaleValue;
                     processingCosts += refurbCost;
+                    refurbishCount++;
                 } else if (decision.decision === 'resell') {
                     valueRecovered += resaleValue * 0.8; // Assume 80% of value for as-is resale
                     processingCosts += refurbCost * 0.2; // Some minimal processing cost
+                    resellCount++;
                 } else if (decision.decision === 'recycle') {
                     valueRecovered += resaleValue * 0.2; // Assume 20% recovery for recycling
                     processingCosts += refurbCost * 0.1; // Minimal processing cost
+                    recycleCount++;
                 } else if (decision.decision === 'discard') {
                     // No recovery for discarded items
                     processingCosts += refurbCost * 0.05; // Disposal cost
+                    discardCount++;
                 }
             }
         }
@@ -68,11 +78,24 @@ function calculateReportMetrics(data, decisions) {
         
         valueRecovered = totalValue * 0.7; // Assume 70% recovery for demo
         processingCosts = totalCost * 0.8; // Assume 80% of costs for demo
+        
+        // Set demo decision counts for visualization
+        refurbishCount = Math.floor(data.length * 0.3);
+        resellCount = Math.floor(data.length * 0.4);
+        recycleCount = Math.floor(data.length * 0.1);
+        discardCount = Math.floor(data.length * 0.2);
     }
     
+    // Store all calculated values in report state
     reportState.valueRecovered = valueRecovered;
     reportState.processingCosts = processingCosts;
     reportState.netRecovery = valueRecovered - processingCosts;
+    reportState.decisionCounts = {
+        refurbish: refurbishCount,
+        resell: resellCount,
+        recycle: recycleCount,
+        discard: discardCount
+    };
 }
 
 // Update report DOM elements

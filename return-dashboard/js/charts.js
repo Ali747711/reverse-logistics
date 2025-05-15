@@ -648,24 +648,33 @@ function createReportDecisionsChart(data, decisions, theme) {
     let discard = 0;
     let pending = data.length;
     
-    // Count from decisions array
-    if (decisions && decisions.length > 0) {
-        decisions.forEach(decision => {
-            if (decision.decision) {
-                pending--;
-                if (decision.decision === 'refurbish') refurbish++;
-                if (decision.decision === 'resell') resell++;
-                if (decision.decision === 'recycle') recycle++;
-                if (decision.decision === 'discard') discard++;
-            }
-        });
+    // Check if we have decision counts in reportState
+    if (window.reportState && window.reportState.decisionCounts) {
+        refurbish = window.reportState.decisionCounts.refurbish;
+        resell = window.reportState.decisionCounts.resell;
+        recycle = window.reportState.decisionCounts.recycle;
+        discard = window.reportState.decisionCounts.discard;
+        pending = data.length - (refurbish + resell + recycle + discard);
     } else {
-        // Demo data if no decisions
-        refurbish = Math.floor(data.length * 0.3);
-        resell = Math.floor(data.length * 0.4);
-        recycle = Math.floor(data.length * 0.1);
-        discard = Math.floor(data.length * 0.2);
-        pending = 0;
+        // Count from decisions array as fallback
+        if (decisions && decisions.length > 0) {
+            decisions.forEach(decision => {
+                if (decision.decision) {
+                    pending--;
+                    if (decision.decision === 'refurbish') refurbish++;
+                    if (decision.decision === 'resell') resell++;
+                    if (decision.decision === 'recycle') recycle++;
+                    if (decision.decision === 'discard') discard++;
+                }
+            });
+        } else {
+            // Demo data if no decisions
+            refurbish = Math.floor(data.length * 0.3);
+            resell = Math.floor(data.length * 0.4);
+            recycle = Math.floor(data.length * 0.1);
+            discard = Math.floor(data.length * 0.2);
+            pending = 0;
+        }
     }
     
     // Destroy existing chart if it exists

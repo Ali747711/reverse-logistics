@@ -178,6 +178,19 @@ function updateDecisionSummary(decisions, data) {
         }
     });
     
+    // If no decisions made yet, use sample data for demo
+    if (processedItems === 0) {
+        // Calculate estimated values based on data
+        let estimatedValue = 0;
+        data.forEach(item => {
+            estimatedValue += (item['Resale Value'] || 0) * 0.7; // Assume 70% recovery
+        });
+        
+        // Set demo values
+        totalRecovery = estimatedValue;
+        netMargin = estimatedValue * 0.4; // Assume 40% margin
+    }
+    
     // Update state
     decisionState.processedItems = processedItems;
     decisionState.totalRecovery = totalRecovery;

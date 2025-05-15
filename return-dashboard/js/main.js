@@ -150,10 +150,48 @@ function loadSampleData() {
         if (progress >= 100) {
             clearInterval(interval);
             setTimeout(() => {
+                // Load sample data
                 processData(window.sampleData);
+                
+                // Pre-populate some decisions for demo purposes
+                initializeDefaultDecisions();
             }, 500);
         }
     }, 200);
+}
+
+// Initialize default decisions for demo purposes
+function initializeDefaultDecisions() {
+    // Make decisions for about 40% of items to show meaningful metrics
+    const itemsToDecide = Math.floor(state.data.length * 0.4);
+    
+    for (let i = 0; i < itemsToDecide; i++) {
+        const item = state.data[i];
+        const refurbCost = item['Refurbishment Cost'] || 0;
+        const resaleValue = item['Resale Value'] || 0;
+        const margin = resaleValue - refurbCost;
+        
+        // Make a logical decision based on margin and condition
+        let decision;
+        if (margin > 50) {
+            decision = 'refurbish';
+        } else if (margin > 0) {
+            decision = 'resell';
+        } else if (item.Condition === 'Poor') {
+            decision = 'discard';
+        } else {
+            decision = 'recycle';
+        }
+        
+        // Update decision in state
+        const decisionIndex = state.decisions.findIndex(d => d.sku === item.SKU);
+        if (decisionIndex !== -1) {
+            state.decisions[decisionIndex].decision = decision;
+        }
+    }
+    
+    // Update dashboard with these decisions
+    updateDashboard();
 }
 
 // Process CSV data
@@ -277,21 +315,24 @@ function updateMetrics() {
     let resold = 0;
     let refurbished = 0;
     let discarded = 0;
+    let recycled = 0;
     
     state.data.forEach(item => {
         if (item.Disposition) {
             if (item.Disposition.toLowerCase() === 'resold') resold++;
             if (item.Disposition.toLowerCase() === 'refurbished') refurbished++;
             if (item.Disposition.toLowerCase() === 'discarded') discarded++;
+            if (item.Disposition.toLowerCase() === 'recycled') recycled++;
         }
     });
     
     // If no dispositions in data, use decisions
-    if (resold === 0 && refurbished === 0 && discarded === 0) {
+    if (resold === 0 && refurbished === 0 && discarded === 0 && recycled === 0) {
         state.decisions.forEach(decision => {
             if (decision.decision === 'resell') resold++;
             if (decision.decision === 'refurbish') refurbished++;
             if (decision.decision === 'discard') discarded++;
+            if (decision.decision === 'recycle') recycled++;
         });
     }
     
@@ -299,12 +340,19 @@ function updateMetrics() {
     const resoldPercent = totalReturns > 0 ? Math.round((resold / totalReturns) * 100) : 0;
     const refurbishedPercent = totalReturns > 0 ? Math.round((refurbished / totalReturns) * 100) : 0;
     const discardedPercent = totalReturns > 0 ? Math.round((discarded / totalReturns) * 100) : 0;
+    const recycledPercent = totalReturns > 0 ? Math.round((recycled / totalReturns) * 100) : 0;
     
     // Update DOM
     document.getElementById('total-returns').textContent = totalReturns;
     document.getElementById('resold-percent').textContent = resoldPercent;
     document.getElementById('refurbished-percent').textContent = refurbishedPercent;
     document.getElementById('discarded-percent').textContent = discardedPercent;
+    
+    // Update other metrics if they exist
+    const recycledElement = document.getElementById('recycled-percent');
+    if (recycledElement) {
+        recycledElement.textContent = recycledPercent;
+    }
 }
 
 // Initialize the app when DOM is fully loaded

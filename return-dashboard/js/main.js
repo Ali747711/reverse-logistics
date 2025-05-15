@@ -24,7 +24,8 @@ const elements = {
     helpBtn: document.getElementById('help-btn'),
     helpModal: document.getElementById('help-modal'),
     closeModal: document.querySelector('.close-modal'),
-    downloadBtn: document.getElementById('download-btn')
+    downloadBtn: document.getElementById('download-btn'),
+    resubmitBtn: document.getElementById('resubmit-data-btn')
 };
 
 // Initialize the application
@@ -59,6 +60,11 @@ function setupEventListeners() {
     
     // Download button
     elements.downloadBtn.addEventListener('click', downloadData);
+    
+    // Resubmit data button
+    if (elements.resubmitBtn) {
+        elements.resubmitBtn.addEventListener('click', resubmitData);
+    }
     
     // Close modal when clicking outside
     window.addEventListener('click', (e) => {
@@ -283,6 +289,27 @@ function downloadData() {
     
     // Clean up
     document.body.removeChild(link);
+}
+
+// Resubmit data function - allows users to go back to the upload screen
+function resubmitData() {
+    // Show confirmation dialog
+    if (confirm('This will clear your current data and decisions. Do you want to continue?')) {
+        // Reset state
+        state.data = [];
+        state.decisions = [];
+        
+        // Hide dashboard content and show upload section
+        elements.dashboardContent.classList.add('hidden');
+        elements.uploadSection.classList.remove('hidden');
+        
+        // Reset upload progress
+        elements.progressBar.style.width = '0%';
+        elements.statusText.textContent = 'Ready to upload new data';
+        
+        // Clear file input
+        elements.fileUpload.value = '';
+    }
 }
 
 // Update all dashboard components

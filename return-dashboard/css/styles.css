@@ -352,6 +352,13 @@ input[type="file"] {
     color: var(--dark-text-secondary);
 }
 
+/* Overview Actions */
+.overview-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
 /* Metrics Cards */
 .metrics-container {
     display: grid;

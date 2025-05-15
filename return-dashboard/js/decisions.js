@@ -11,20 +11,43 @@ let decisionState = {
 function populateDecisionTable(data, decisions) {
     const tableBody = document.querySelector('#decision-table tbody');
     const searchInput = document.getElementById('decision-search');
+    const searchBtn = document.getElementById('search-btn');
     const filterSelect = document.getElementById('decision-filter');
     
     // Clear existing rows
     tableBody.innerHTML = '';
     
-    // Set up event listeners
-    searchInput.addEventListener('input', () => {
+    // Remove existing event listeners to prevent duplicates
+    searchInput.removeEventListener('input', handleSearchInput);
+    searchBtn.removeEventListener('click', handleSearchClick);
+    filterSelect.removeEventListener('change', handleFilterChange);
+    
+    // Set up event listeners with named functions to allow removal
+    function handleSearchInput() {
         decisionState.search = searchInput.value.toLowerCase();
         filterDecisionTable(data, decisions);
-    });
+    }
     
-    filterSelect.addEventListener('change', () => {
+    function handleSearchClick() {
+        decisionState.search = searchInput.value.toLowerCase();
+        filterDecisionTable(data, decisions);
+    }
+    
+    function handleFilterChange() {
         decisionState.filter = filterSelect.value;
         filterDecisionTable(data, decisions);
+    }
+    
+    // Add event listeners
+    searchInput.addEventListener('input', handleSearchInput);
+    searchBtn.addEventListener('click', handleSearchClick);
+    filterSelect.addEventListener('change', handleFilterChange);
+    
+    // Add enter key support for search
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSearchClick();
+        }
     });
     
     // Initial population

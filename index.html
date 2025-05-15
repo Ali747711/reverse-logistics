@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Value Recovery Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light-mode">
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-recycle"></i>
+                <h2>ReturnValue</h2>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li class="active"><a href="#overview"><i class="fas fa-home"></i> Overview</a></li>
+                    <li><a href="#value-analysis"><i class="fas fa-chart-line"></i> Value Analysis</a></li>
+                    <li><a href="#product-decisions"><i class="fas fa-tasks"></i> Product Decisions</a></li>
+                    <li><a href="#reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Learning Simulation Tool</p>
+                <div class="theme-toggle">
+                    <span>Theme</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Return Value Recovery Dashboard</h1>
+                <div class="user-actions">
+                    <button id="help-btn" class="btn-icon"><i class="fas fa-question-circle"></i></button>
+                    <button id="download-btn" class="btn-icon"><i class="fas fa-download"></i></button>
+                </div>
+            </header>
+
+            <!-- Upload Section -->
+            <section id="upload-section" class="content-section">
+                <div class="upload-container">
+                    <h2>Start Your Simulation</h2>
+                    <p>Upload a CSV file with return data or use our sample dataset</p>
+                    <div class="upload-actions">
+                        <label for="file-upload" class="custom-file-upload">
+                            <i class="fas fa-cloud-upload-alt"></i> Upload CSV
+                        </label>
+                        <input id="file-upload" type="file" accept=".csv">
+                        <button id="sample-data-btn" class="btn-primary">Use Sample Data</button>
+                    </div>
+                    <div id="upload-status" class="hidden">
+                        <div class="progress-bar">
+                            <div class="progress"></div>
+                        </div>
+                        <p class="status-text">Processing data...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Content (Initially Hidden) -->
+            <div id="dashboard-content" class="hidden">
+                <!-- Overview Section -->
+                <section id="overview" class="content-section">
+                    <h2 class="section-title">Overview</h2>
+                    <div class="overview-actions">
+                        <button id="resubmit-data-btn" class="btn-primary"><i class="fas fa-sync-alt"></i> Resubmit Dataset</button>
+                    </div>
+                    <div class="metrics-container">
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-box-open"></i></div>
+                            <div class="metric-content">
+                                <h3>Total Returns</h3>
+                                <p class="metric-value" id="total-returns">0</p>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-tags"></i></div>
+                            <div class="metric-content">
+                                <h3>Resold</h3>
+                                <p class="metric-value"><span id="resold-percent">0</span>%</p>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-tools"></i></div>
+                            <div class="metric-content">
+                                <h3>Refurbished</h3>
+                                <p class="metric-value"><span id="refurbished-percent">0</span>%</p>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon"><i class="fas fa-trash-alt"></i></div>
+                            <div class="metric-content">
+                                <h3>Discarded</h3>
+                                <p class="metric-value"><span id="discarded-percent">0</span>%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h3>Disposition Breakdown</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="disposition-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Value Recovery Timeline</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="timeline-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Value Analysis Section -->
+                <section id="value-analysis" class="content-section hidden">
+                    <h2 class="section-title">Value Analysis</h2>
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label>Time Period:</label>
+                            <select id="time-period-filter">
+                                <option value="30">Last 30 Days</option>
+                                <option value="60">Last 60 Days</option>
+                                <option value="90">Last 90 Days</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Product Category:</label>
+                            <select id="category-filter">
+                                <option value="all">All Categories</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="charts-container">
+                        <div class="chart-card full-width">
+                            <h3>Top 10 Products by Value Recovered</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="top-products-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Recovery Rate by Condition</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="condition-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Refurbishment ROI</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="roi-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Product Decisions Section -->
+                <section id="product-decisions" class="content-section hidden">
+                    <h2 class="section-title">Product Decisions</h2>
+                    <div class="decision-controls">
+                        <div class="search-filter">
+                            <input type="text" id="decision-search" placeholder="Search by SKU or Product Name">
+                            <button id="search-btn"><i class="fas fa-search"></i></button>
+                        </div>
+                        <div class="filter-group">
+                            <label>Filter by:</label>
+                            <select id="decision-filter">
+                                <option value="all">All Items</option>
+                                <option value="pending">Pending Decision</option>
+                                <option value="profitable">Profitable to Refurbish</option>
+                                <option value="loss">Loss on Refurbishment</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="decision-table-container">
+                        <table id="decision-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Product</th>
+                                    <th>Condition</th>
+                                    <th>Refurb Cost</th>
+                                    <th>Resale Value</th>
+                                    <th>Margin</th>
+                                    <th>Days in Process</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Table rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="decision-summary">
+                        <h3>Decision Impact</h3>
+                        <div class="summary-metrics">
+                            <div class="summary-metric">
+                                <span class="metric-label">Items Processed:</span>
+                                <span class="metric-value" id="items-processed">0</span>
+                            </div>
+                            <div class="summary-metric">
+                                <span class="metric-label">Total Recovery Value:</span>
+                                <span class="metric-value" id="total-recovery">$0</span>
+                            </div>
+                            <div class="summary-metric">
+                                <span class="metric-label">Net Margin:</span>
+                                <span class="metric-value" id="net-margin">$0</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Reports Section -->
+                <section id="reports" class="content-section hidden">
+                    <h2 class="section-title">Learning Report</h2>
+                    <div class="report-container">
+                        <div class="report-section">
+                            <h3>Simulation Summary</h3>
+                            <div class="report-metrics">
+                                <div class="report-metric">
+                                    <p class="metric-label">Total Items Processed:</p>
+                                    <p class="metric-value" id="report-total-items">0</p>
+                                </div>
+                                <div class="report-metric">
+                                    <p class="metric-label">Value Recovered:</p>
+                                    <p class="metric-value" id="report-value-recovered">$0</p>
+                                </div>
+                                <div class="report-metric">
+                                    <p class="metric-label">Processing Costs:</p>
+                                    <p class="metric-value" id="report-processing-costs">$0</p>
+                                </div>
+                                <div class="report-metric">
+                                    <p class="metric-label">Net Recovery:</p>
+                                    <p class="metric-value" id="report-net-recovery">$0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="report-section">
+                            <h3>Decision Breakdown</h3>
+                            <div class="report-chart-container">
+                                <canvas id="report-decisions-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="report-section">
+                            <h3>Learning Reflection</h3>
+                            <div class="reflection-form">
+                                <div class="form-group">
+                                    <label for="key-insights">Key Insights:</label>
+                                    <textarea id="key-insights" rows="3" placeholder="What did you learn about the reverse logistics process?"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="challenges">Challenges:</label>
+                                    <textarea id="challenges" rows="3" placeholder="What challenges did you encounter in the decision-making process?"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="strategies">Strategies:</label>
+                                    <textarea id="strategies" rows="3" placeholder="What strategies would you implement to improve the recovery process?"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="report-actions">
+                            <button id="generate-report-btn" class="btn-primary"><i class="fas fa-file-pdf"></i> Generate PDF Report</button>
+                            <button id="save-reflection-btn" class="btn-secondary"><i class="fas fa-save"></i> Save Reflection</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Dashboard Help</h2>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h3><i class="fas fa-info-circle"></i> About This Simulation</h3>
+                    <p>This dashboard simulates the reverse logistics process for returned products. You'll make decisions about whether to refurbish, resell, recycle, or discard returned items based on their condition, costs, and potential value.</p>
+                </div>
+                <div class="help-section">
+                    <h3><i class="fas fa-question-circle"></i> How to Use</h3>
+                    <ol>
+                        <li>Start by uploading a CSV file with return data or use the sample dataset.</li>
+                        <li>Explore the Overview to see key metrics about your returns.</li>
+                        <li>Use the Value Analysis section to identify trends and opportunities.</li>
+                        <li>Make decisions on individual products in the Product Decisions section.</li>
+                        <li>Generate a report summarizing your learning and decisions.</li>
+                    </ol>
+                </div>
+                <div class="help-section">
+                    <h3><i class="fas fa-file-csv"></i> CSV Format</h3>
+                    <p>Your CSV should include these columns:</p>
+                    <ul>
+                        <li>SKU - Product identifier</li>
+                        <li>Product Name - Name of the product</li>
+                        <li>Condition - Current condition (e.g., Like New, Good, Fair, Poor)</li>
+                        <li>Refurbishment Cost - Cost to refurbish the item</li>
+                        <li>Resale Value - Potential value after refurbishment</li>
+                        <li>Days in Process - Days since return receipt</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/decisions.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
